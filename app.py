@@ -42,7 +42,8 @@ if st.button("🔮 Analyze My Mood") and user_input.strip():
     with torch.no_grad():
         outputs = model(**inputs)
 
-    logits = outputs.logits.detach().cpu()
+    logits = outputs.logits.to(torch.device("cpu"))
+
     probs = torch.nn.functional.softmax(logits, dim=1)
     top_pred = torch.argmax(probs, dim=1).item()
     label = model.config.id2label[top_pred]
