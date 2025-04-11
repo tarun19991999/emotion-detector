@@ -5,9 +5,10 @@ import numpy as np
 from pathlib import Path
 
 # Load model and tokenizer
-MODEL_PATH = "./backend/emotion-bert"
+MODEL_PATH = "distilbert-base-uncased"  # or any fine-tuned public model
 tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
 model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+
 model.eval()
 
 # Emotion labels
