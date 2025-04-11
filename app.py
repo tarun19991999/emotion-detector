@@ -11,11 +11,11 @@ MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
 
 @st.cache_data(show_spinner=False)
 def load_model():
-    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
-    model = DistilBertForSequenceClassification.from_pretrained(MODEL_NAME)
-    model.to("cpu")
-    model.eval()
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+    model.eval()  
     return tokenizer, model
+
 
 
 tokenizer, model = load_model()
