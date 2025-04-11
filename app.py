@@ -2,25 +2,25 @@ import streamlit as st
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 import torch
 import numpy as np
-from pathlib import Path
 
-# Load model and tokenizer
-MODEL_PATH = "distilbert-base-uncased"  # or any fine-tuned public model
-tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
-model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+st.set_page_config(page_title="🎭 Emotion Detector", layout="centered")
+st.title("🎭 Emotion Detector 3000")
+st.markdown("Type your feeling and let the AI guess your vibe!")
 
-model.eval()
+# Load pretrained emotion model from Hugging Face
+MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
 
-# Emotion labels
-emotion_labels = [
-    "admiration", "amusement", "anger", "annoyance", "approval", "caring",
-    "confusion", "curiosity", "desire", "disappointment", "disapproval", "disgust",
-    "embarrassment", "excitement", "fear", "gratitude", "grief", "joy", "love",
-    "nervousness", "optimism", "pride", "realization", "relief", "remorse",
-    "sadness", "surprise", "neutral"
-]
+@st.cache_resource
+def load_model():
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL_NAME)
+    model.eval()
+    return tokenizer, model
 
-# GIF and Music (simplified for demo)
+tokenizer, model = load_model()
+id2label = model.config.id2label
+
+# Limited demo assets (only 4 categories for now)
 emotion_gifs = {
     "joy": "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
     "sadness": "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
@@ -34,11 +34,6 @@ emotion_music = {
     "neutral": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
 }
 
-# Streamlit UI
-st.set_page_config(page_title="🎭 Emotion Detector", layout="centered")
-st.title("🎭 Emotion Detector 3000")
-st.markdown("Type your feeling and let the AI guess your vibe!")
-
 user_input = st.text_area("What's on your mind?", placeholder="E.g., I feel like dancing in the rain...")
 
 if st.button("🔮 Analyze My Mood") and user_input.strip():
@@ -47,11 +42,10 @@ if st.button("🔮 Analyze My Mood") and user_input.strip():
         outputs = model(**inputs)
     probs = torch.nn.functional.softmax(outputs.logits, dim=1)
     top_pred = torch.argmax(probs, dim=1).item()
-    emotion = emotion_labels[top_pred]
+    label = model.config.id2label[top_pred]
     confidence = float(probs[0][top_pred]) * 100
 
-    st.success(f"🎯 Emotion: **{emotion.upper()}**\n🧠 Confidence: **{confidence:.2f}%**")
-    st.image(emotion_gifs.get(emotion, emotion_gifs["neutral"]), caption=f"{emotion.capitalize()} GIF")
-
-    st.audio(emotion_music.get(emotion, emotion_music["neutral"]))
+    st.success(f"🎯 Emotion: **{label.upper()}**\n🧠 Confidence: **{confidence:.2f}%**")
+    st.image(emotion_gifs.get(label.lower(), emotion_gifs["neutral"]), caption=f"{label.capitalize()} GIF")
+    st.audio(emotion_music.get(label.lower(), emotion_music["neutral"]))
 
