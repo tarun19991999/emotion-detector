@@ -1,0 +1,100 @@
+body {
+  background: linear-gradient(to right, #1f1f2f, #2c2c3c);
+  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+  color: #eee;
+}
+
+.container {
+  background: #2c2c3f;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  max-width: 700px;
+  width: 100%;
+  text-align: center;
+  transition: 0.3s ease;
+}
+
+h1 {
+  margin-bottom: 10px;
+  font-size: 28px;
+  color: #bb86fc;
+}
+
+p {
+  color: #ccc;
+  font-size: 16px;
+}
+
+textarea {
+  width: 100%;
+  height: 100px;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #444;
+  margin-top: 15px;
+  resize: none;
+  background: #1a1a27;
+  color: #f1f1f1;
+}
+
+button {
+  background: #7c4dff;
+  font-size: 16px;
+  padding: 12px 30px;
+  border-radius: 12px;
+  color: white;
+  border: none;
+  transition: all 0.3s ease-in-out;
+  margin-top: 20px;
+}
+button:hover {
+  background: #651fff;
+  transform: scale(1.05);
+}
+
+#result {
+  font-size: 20px;
+  font-weight: 600;
+  margin-top: 25px;
+  color: #e0e0e0;
+}
+
+#gifBox img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 15px;
+  box-shadow: 0 6px 15px rgba(255, 255, 255, 0.1);
+}
+
+audio {
+  margin-top: 10px;
+  width: 100%;
+  border-radius: 8px;
+  background: #333;
+}
+
+footer {
+  margin-top: 25px;
+  font-size: 14px;
+  color: #aaa;
+  text-align: center;
+  width: 100%;
+}
+
+#particles-js {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
