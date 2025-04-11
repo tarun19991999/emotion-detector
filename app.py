@@ -1,23 +1,11 @@
 import streamlit as st
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
-import torch
+import requests
 
 st.set_page_config(page_title="🎭 Emotion Detector", layout="centered")
 st.title("🎭 Emotion Detector 3000")
 st.markdown("Type your feeling and let the AI guess your vibe!")
 
-MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
-
-@st.cache_data(show_spinner=False)
-def load_model(model_path):
-    tokenizer = DistilBertTokenizer.from_pretrained(model_path)
-    model = DistilBertForSequenceClassification.from_pretrained(model_path)
-    model.eval()
-    return tokenizer, model
-
-tokenizer, model = load_model(MODEL_NAME)
-id2label = model.config.id2label
-
+# Emotion media (same as before)
 emotion_gifs = {
     "joy": "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
     "sadness": "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
@@ -31,21 +19,22 @@ emotion_music = {
     "neutral": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
 }
 
+# Input
 user_input = st.text_area("What's on your mind?", placeholder="E.g., I feel like dancing in the rain...")
 
 if st.button("🔮 Analyze My Mood") and user_input.strip():
-    inputs = tokenizer(user_input, return_tensors="pt", truncation=True, padding=True)
-    inputs = {k: v.to("cpu") for k, v in inputs.items()}
+    try:
+        # 🔁 Change this to your **public FastAPI URL** after deployment (for now keep localhost for testing)
+        backend_url = "http://127.0.0.1:8000/predict"
 
-    with torch.no_grad():
-        outputs = model(**inputs)
+        response = requests.post(backend_url, json={"text": user_input})
+        result = response.json()
 
-    logits = outputs.logits.detach().cpu()
-    probs = torch.nn.functional.softmax(logits, dim=1)
-    top_pred = torch.argmax(probs, dim=1).item()
-    label = id2label[top_pred]
-    confidence = float(probs[0][top_pred]) * 100
+        label = result["emotion"]
+        confidence = result["confidence"]
 
-    st.success(f"🎯 Emotion: **{label.upper()}**\n🧠 Confidence: **{confidence:.2f}%**")
-    st.image(emotion_gifs.get(label.lower(), emotion_gifs["neutral"]), caption=f"{label.capitalize()} GIF")
-    st.audio(emotion_music.get(label.lower(), emotion_music["neutral"]))
+        st.success(f"🎯 Emotion: **{label.upper()}**\n🧠 Confidence: **{confidence}**")
+        st.image(emotion_gifs.get(label.lower(), emotion_gifs["neutral"]), caption=f"{label.capitalize()} GIF")
+        st.audio(emotion_music.get(label.lower(), emotion_music["neutral"]))
+    except Exception as e:
+        st.error("Something went wrong! Make sure the FastAPI backend is running and accessible.")

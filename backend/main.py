@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 import torch
 import numpy as np
+from pathlib import Path
 
 app = FastAPI()
 
@@ -19,10 +20,13 @@ class TextIn(BaseModel):
     text: str
 
 # Load model and tokenizer
-model_path = "./backend/emotion-bert"
-tokenizer = DistilBertTokenizer.from_pretrained(model_path)
-model = DistilBertForSequenceClassification.from_pretrained(model_path)
+
+
+model_path = Path(__file__).resolve().parent / "emotion-bert"
+tokenizer = DistilBertTokenizer.from_pretrained(str(model_path))
+model = DistilBertForSequenceClassification.from_pretrained(str(model_path))
 model.eval()
+
 
 # Define the 28 emotions 
 emotion_labels = [
