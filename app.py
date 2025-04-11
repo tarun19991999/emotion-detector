@@ -9,13 +9,14 @@ st.markdown("Type your feeling and let the AI guess your vibe!")
 # Use correct model name
 MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
 
-@st.cache_resource
+@st.cache_data(show_spinner=False)
 def load_model():
     tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
     model = DistilBertForSequenceClassification.from_pretrained(MODEL_NAME)
-    model.to("cpu")  # ✅ Ensure model is on CPU
+    model.to("cpu")
     model.eval()
     return tokenizer, model
+
 
 tokenizer, model = load_model()
 id2label = model.config.id2label
