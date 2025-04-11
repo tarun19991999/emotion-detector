@@ -1,27 +1,26 @@
 import streamlit as st
 from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
 import torch
-import numpy as np
 
 st.set_page_config(page_title="🎭 Emotion Detector", layout="centered")
 st.title("🎭 Emotion Detector 3000")
 st.markdown("Type your feeling and let the AI guess your vibe!")
 
-# Load pretrained emotion model from Hugging Face
-MODEL_PATH = "bhadresh-savani/distilbert-base-uncased-emotion"
-
+# Use correct model name
+MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
 
 @st.cache_resource
 def load_model():
-    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
-    model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL_NAME)
+    model.to("cpu")  # ✅ Ensure model is on CPU
     model.eval()
     return tokenizer, model
 
 tokenizer, model = load_model()
 id2label = model.config.id2label
 
-# Limited demo assets (only 4 categories for now)
+# Demo media assets
 emotion_gifs = {
     "joy": "https://media.giphy.com/media/yoJC2A59OCZHs1LXvW/giphy.gif",
     "sadness": "https://media.giphy.com/media/ROF8OQvDmxytW/giphy.gif",
@@ -35,22 +34,22 @@ emotion_music = {
     "neutral": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3"
 }
 
+# UI input
 user_input = st.text_area("What's on your mind?", placeholder="E.g., I feel like dancing in the rain...")
 
 if st.button("🔮 Analyze My Mood") and user_input.strip():
     inputs = tokenizer(user_input, return_tensors="pt", truncation=True, padding=True)
+    inputs = {k: v.to("cpu") for k, v in inputs.items()}  # ✅ Inputs to CPU
+
     with torch.no_grad():
         outputs = model(**inputs)
 
-    logits = outputs.logits.to(torch.device("cpu"))
-
+    logits = outputs.logits.detach().cpu()  # ✅ Detach and move to CPU
     probs = torch.nn.functional.softmax(logits, dim=1)
     top_pred = torch.argmax(probs, dim=1).item()
-    label = model.config.id2label[top_pred]
+    label = id2label[str(top_pred)]
     confidence = float(probs[0][top_pred]) * 100
-
 
     st.success(f"🎯 Emotion: **{label.upper()}**\n🧠 Confidence: **{confidence:.2f}%**")
     st.image(emotion_gifs.get(label.lower(), emotion_gifs["neutral"]), caption=f"{label.capitalize()} GIF")
     st.audio(emotion_music.get(label.lower(), emotion_music["neutral"]))
-
