@@ -8,12 +8,13 @@ st.title("🎭 Emotion Detector 3000")
 st.markdown("Type your feeling and let the AI guess your vibe!")
 
 # Load pretrained emotion model from Hugging Face
-MODEL_NAME = "bhadresh-savani/distilbert-base-uncased-emotion"
+MODEL_PATH = "bhadresh-savani/distilbert-base-uncased-emotion"
+
 
 @st.cache_resource
 def load_model():
-    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_NAME)
-    model = DistilBertForSequenceClassification.from_pretrained(MODEL_NAME)
+    tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
+    model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
     model.eval()
     return tokenizer, model
 
