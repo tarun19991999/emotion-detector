@@ -41,8 +41,8 @@ if st.button("🔮 Analyze My Mood") and user_input.strip():
     inputs = tokenizer(user_input, return_tensors="pt", truncation=True, padding=True)
     with torch.no_grad():
         outputs = model(**inputs)
-    probs = torch.nn.functional.softmax(outputs.logits, dim=1)
-    top_pred = torch.argmax(probs, dim=1).item()
+    probs = torch.nn.functional.softmax(outputs.logits, dim=1).cpu()
+    top_pred = torch.argmax(probs.cpu(), dim=1).item()
     label = model.config.id2label[top_pred]
     confidence = float(probs[0][top_pred]) * 100
 
